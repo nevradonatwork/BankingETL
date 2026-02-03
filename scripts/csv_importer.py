@@ -351,8 +351,8 @@ def process_csv_folder(folder_path, configs, conn):
                     VALUES (?, ?, ?, ?, ?, ?, ?)
                 ''', (entry['operation'], entry['table_name'], entry['rows_affected'],
                       entry['status'], entry['message'], entry['started_at'], entry['completed_at']))
-            except:
-                pass  # Log table might not exist
+            except sqlite3.OperationalError:
+                print(f"  WARNING: Could not write to _etl_log table (may not exist)")
         conn.commit()
 
     return results

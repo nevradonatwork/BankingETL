@@ -401,8 +401,8 @@ def create_branch_summary(conn):
                     WHERE a.branch_id = rptBranchSummary.branch_id
                 )
             """)
-        except:
-            pass  # branch_id might not exist in accounts
+        except sqlite3.OperationalError:
+            print("    WARNING: Could not update account_count (branch_id may not exist in stgAccountProducts)")
 
     conn.commit()
 
@@ -455,8 +455,8 @@ def create_daily_metrics(conn):
             for row in cursor.fetchall():
                 if row[0]:
                     metrics.append((row[0], f'imported_{table}', row[1], now))
-        except:
-            pass
+        except sqlite3.OperationalError:
+            pass  # _imported_at column may not exist in this table
 
     # Insert metrics
     for metric in metrics:
@@ -526,8 +526,8 @@ def main():
             VALUES ('last_report_refresh', ?, ?, ?)
         """, (now, now, now))
         conn.commit()
-    except:
-        pass
+    except sqlite3.OperationalError:
+        print("\n  WARNING: Could not update _etl_metadata table (may not exist)")
 
     conn.close()
 
